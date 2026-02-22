@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { LayoutDashboard, Moon, Sun, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, Moon, Sun, Menu, X, User, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { Logo } from './Logo';
 
-const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
+const SidebarContent = ({ onClose, onNewHabit }: { onClose?: () => void, onNewHabit?: () => void }) => {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
@@ -32,7 +33,20 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
         )}
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <div className="p-4">
+        <button
+          onClick={() => {
+            if (onNewHabit) onNewHabit();
+            if (onClose) onClose();
+          }}
+          className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer mb-4"
+        >
+          <Plus size={20} />
+          New Habit
+        </button>
+      </div>
+
+      <nav className="flex-1 p-4 pt-0 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -86,7 +100,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children, onNewHabit }: { children: React.ReactNode, onNewHabit?: () => void }) {
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -94,7 +108,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans flex transition-colors duration-200">
       {/* Desktop Sidebar */}
       <aside className="w-64 border-r border-stone-200 dark:border-stone-800 flex-col fixed h-full z-30 hidden md:flex transition-colors duration-200">
-        <SidebarContent />
+        <SidebarContent onNewHabit={onNewHabit} />
       </aside>
 
       {/* Mobile Header */}
@@ -125,20 +139,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Mobile Sidebar Drawer */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" 
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          
-          {/* Sidebar Panel */}
-          <aside className="relative w-64 h-full shadow-2xl animate-in slide-in-from-left duration-200">
-            <SidebarContent onClose={() => setIsMobileMenuOpen(false)} />
-          </aside>
-        </div>
-      )}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Sidebar Panel */}
+            <motion.aside 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="relative w-64 h-full shadow-2xl"
+            >
+              <SidebarContent onClose={() => setIsMobileMenuOpen(false)} onNewHabit={onNewHabit} />
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 overflow-y-auto h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-200">

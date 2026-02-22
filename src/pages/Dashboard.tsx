@@ -206,7 +206,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout>
+    <Layout onNewHabit={() => openModal()}>
       <div className="flex flex-col gap-8">
         {/* Name Prompt Modal */}
         <AnimatePresence>
@@ -322,14 +322,28 @@ export default function Dashboard() {
                   console.log('New Habit clicked');
                   openModal();
                 }}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 md:px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition-colors cursor-pointer h-[38px]"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-sm md:text-base font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer h-[44px] md:h-auto"
               >
-                <Plus size={16} className="pointer-events-none" />
-                <span className="hidden md:inline">New Habit</span>
-                <span className="md:hidden">New</span>
+                <Plus size={20} className="pointer-events-none" />
+                <span className="hidden sm:inline">New Habit</span>
+                <span className="sm:hidden">New</span>
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Floating Action Button */}
+        <div className="md:hidden fixed bottom-6 right-6 z-40">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              console.log('Mobile FAB clicked');
+              openModal();
+            }}
+            className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/40 cursor-pointer"
+          >
+            <Plus size={28} />
+          </motion.button>
         </div>
 
         {/* Stats Section */}
@@ -361,7 +375,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white dark:bg-stone-900 rounded-xl shadow-xl w-full max-w-md p-6 border border-stone-100 dark:border-stone-800"
+              className="relative bg-white dark:bg-stone-900 rounded-xl shadow-xl w-full max-w-md p-6 border border-stone-100 dark:border-stone-800 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100">
