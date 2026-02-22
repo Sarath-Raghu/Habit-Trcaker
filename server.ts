@@ -21,6 +21,11 @@ async function startServer() {
   app.use(express.json());
   app.use(cookieParser());
 
+  // Health Check
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', database: 'connected' });
+  });
+
   // API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/habits', habitRoutes);

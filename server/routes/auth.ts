@@ -16,9 +16,12 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    console.log('Registering user:', { name, email });
     const hashedPassword = await bcrypt.hash(password, 10);
     const stmt = db.prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
     const info = stmt.run(name, email, hashedPassword);
+
+    console.log('User created with ID:', info.lastInsertRowid);
 
     const token = jwt.sign({ id: info.lastInsertRowid, email }, JWT_SECRET, { expiresIn: '7d' });
 
@@ -31,10 +34,11 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ user: { id: info.lastInsertRowid, name, email } });
   } catch (error: any) {
+    console.error('Registration error:', error);
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return res.status(400).json({ error: 'Email already exists' });
     }
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + (error.message || 'Unknown error') });
   }
 });
 

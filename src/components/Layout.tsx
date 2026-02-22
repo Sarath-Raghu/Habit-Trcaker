@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { LogOut, LayoutDashboard, Moon, Sun, Check, Menu, X } from 'lucide-react';
+import { LogOut, LayoutDashboard, Moon, Sun, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
-
-const Logo = ({ size = 'md' }: { size?: 'sm' | 'md' }) => (
-  <div className={cn(
-    "bg-gradient-to-br from-pink-500 to-red-500 rounded-lg flex items-center justify-center shadow-sm",
-    size === 'md' ? "w-8 h-8" : "w-6 h-6"
-  )}>
-    <div className={cn(
-      "rounded-full border-2 border-white flex items-center justify-center",
-      size === 'md' ? "w-6 h-6" : "w-4 h-4"
-    )}>
-      <Check size={size === 'md' ? 14 : 10} strokeWidth={3} className="text-white" />
-    </div>
-  </div>
-);
+import { Logo } from './Logo';
 
 const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
   const { user, logout } = useAuth();

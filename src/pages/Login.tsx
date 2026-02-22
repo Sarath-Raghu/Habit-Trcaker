@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { Logo } from '../components/Logo';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,7 +30,14 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
       
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || 'Server returned a non-JSON response');
+      }
       
       if (res.ok) {
         login(data.user);
@@ -37,8 +45,9 @@ export default function Login() {
       } else {
         setError(data.error || 'Login failed. Please check your credentials.');
       }
-    } catch (err) {
-      setError('Connection error. Please try again.');
+    } catch (err: any) {
+      console.error('Login fetch error:', err);
+      setError(err.message || 'Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -52,9 +61,7 @@ export default function Login() {
         className="bg-white dark:bg-stone-900 p-8 rounded-2xl shadow-xl w-full max-w-md border border-stone-100 dark:border-stone-800"
       >
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-emerald-500 rounded-xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <div className="w-6 h-6 bg-white rounded-md opacity-80"></div>
-          </div>
+          <Logo size="lg" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">Student Habit Tracker</h1>
           <p className="text-stone-500 dark:text-stone-400 mt-2">Sign in to manage your daily habits</p>
         </div>
