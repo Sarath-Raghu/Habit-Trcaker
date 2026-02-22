@@ -3,6 +3,7 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { initializeDatabase } from './server/db';
 import authRoutes from './server/routes/auth';
 import habitRoutes from './server/routes/habits';
@@ -20,6 +21,10 @@ async function startServer() {
 
   app.use(express.json());
   app.use(cookieParser());
+  app.use(cors({
+    origin: true,
+    credentials: true
+  }));
 
   // Request Logger
   app.use((req, res, next) => {
@@ -33,7 +38,7 @@ async function startServer() {
   });
 
   // API Routes
-  app.use('/api/auth', authRoutes);
+  app.use('/api', authRoutes); // Mount at /api to support /api/register and /api/login
   app.use('/api/habits', habitRoutes);
 
   // 404 for API routes

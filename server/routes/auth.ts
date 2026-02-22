@@ -32,7 +32,11 @@ router.post('/register', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({ user: { id: info.lastInsertRowid, name, email } });
+    res.status(201).json({ 
+      success: true,
+      message: "User registered successfully",
+      user: { id: info.lastInsertRowid, name, email } 
+    });
   } catch (error: any) {
     console.error('Registration error:', error);
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
@@ -68,7 +72,11 @@ router.post('/login', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ 
+      success: true,
+      message: "Login successful",
+      user: { id: user.id, name: user.name, email: user.email } 
+    });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
