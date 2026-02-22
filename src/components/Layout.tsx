@@ -33,7 +33,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
       <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
         <h1 className="text-xl font-bold text-stone-800 dark:text-stone-100 tracking-tight flex items-center gap-3">
           <Logo size="md" />
-          Habit Tracker
+          Student Habit Tracker
         </h1>
         {onClose && (
           <button 
@@ -129,7 +129,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
            </button>
            <h1 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
               <Logo size="sm" />
-              Habit Tracker
+              Student Habit Tracker
             </h1>
          </div>
           <div className="flex items-center gap-2">

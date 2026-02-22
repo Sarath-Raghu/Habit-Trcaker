@@ -1,5 +1,5 @@
 {
-  "name": "Habit Tracker",
-  "description": "A clean, modern habit tracker dashboard inspired by Google Sheets.",
+  "name": "Student Habit Tracker",
+  "description": "A clean, modern habit tracker dashboard for students.",
   "requestFramePermissions": []
 }
