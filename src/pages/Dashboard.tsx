@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import HabitGrid from '../components/HabitGrid';
 import Stats from '../components/Stats';
+import { Logo } from '../components/Logo';
 import { Plus, X, Download } from 'lucide-react';
 import { format, addMonths, subMonths, eachDayOfInterval, startOfMonth, endOfMonth } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
@@ -226,8 +227,8 @@ export default function Dashboard() {
                 className="relative bg-white dark:bg-stone-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-stone-100 dark:border-stone-800"
               >
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Plus size={32} />
+                  <div className="flex justify-center mb-6">
+                    <Logo size="lg" />
                   </div>
                   <h3 className="text-2xl font-bold text-stone-800 dark:text-stone-100">Welcome!</h3>
                   <p className="text-stone-500 dark:text-stone-400 mt-2">What should we call you?</p>
