@@ -21,10 +21,16 @@ async function startServer() {
 
   app.use(express.json());
   app.use(cookieParser());
+  
+  // Permissive CORS for all origins
   app.use(cors({
-    origin: true,
-    credentials: true
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   }));
+
+  // Handle preflight requests
+  app.options('*', cors());
 
   // Request Logger
   app.use((req, res, next) => {

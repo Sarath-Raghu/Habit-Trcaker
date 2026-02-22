@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ 
       success: true,
-      message: "User registered successfully",
+      message: "Registered successfully",
       user: { id: info.lastInsertRowid, name, email } 
     });
   } catch (error: any) {
@@ -74,7 +74,7 @@ router.post('/login', async (req, res) => {
 
     res.json({ 
       success: true,
-      message: "Login successful",
+      message: "Logged in successfully",
       user: { id: user.id, name: user.name, email: user.email } 
     });
   } catch (error) {
@@ -94,6 +94,19 @@ router.get('/me', authenticateToken, (req: AuthRequest, res) => {
   const user = stmt.get(req.user?.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ user });
+});
+
+// Method Not Allowed Handlers
+router.all('/register', (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ success: false, message: "Method not allowed" });
+  }
+});
+
+router.all('/login', (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ success: false, message: "Method not allowed" });
+  }
 });
 
 export default router;
