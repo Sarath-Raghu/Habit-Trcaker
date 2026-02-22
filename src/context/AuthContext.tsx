@@ -8,27 +8,31 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
+  updateName: (name: string) => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>({ id: 1, name: 'Default User', email: 'user@example.com' });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (userData: User) => {
-    setUser(userData);
-  };
+  useEffect(() => {
+    const savedName = localStorage.getItem('user_name');
+    if (savedName) {
+      setUser({ id: 1, name: savedName, email: 'user@example.com' });
+    }
+    setLoading(false);
+  }, []);
 
-  const logout = async () => {
-    setUser(null);
+  const updateName = (name: string) => {
+    localStorage.setItem('user_name', name);
+    setUser({ id: 1, name, email: 'user@example.com' });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, updateName, loading }}>
       {children}
     </AuthContext.Provider>
   );

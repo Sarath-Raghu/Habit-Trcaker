@@ -11,7 +11,7 @@ import {
   endOfWeek
 } from 'date-fns';
 import { Check, Trash2, Edit2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
 interface Habit {
@@ -113,83 +113,93 @@ export default function HabitGrid({ habits, currentDate, onToggle, onDelete, onE
 
         {/* Habit Rows */}
         <div className="divide-y divide-stone-100 dark:divide-stone-800">
-          {habits.map((habit) => {
-            // Calculate row progress
-            const completedInPeriod = days.filter(day => {
-                const dateStr = format(day, 'yyyy-MM-dd');
-                return habit.entries.some(e => e.date === dateStr && e.completed);
-            }).length;
-            const progress = Math.round((completedInPeriod / daysCount) * 100);
-            const goal = getHabitGoal(habit);
-
-            return (
-              <div key={habit.id} className="grid group hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors" style={{ gridTemplateColumns: `var(--habit-col-width) var(--goal-col-width) repeat(${daysCount}, minmax(44px, 1fr))` }}>
-                <div className="sticky left-0 z-20 bg-white dark:bg-stone-900 group-hover:bg-stone-50 dark:group-hover:bg-stone-900 transition-colors p-4 flex items-center justify-between pr-6 border-r border-stone-100 dark:border-stone-800 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
-                  <div className="flex flex-col overflow-hidden">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-stone-700 dark:text-stone-200 truncate" title={habit.title}>{habit.title}</span>
-                    </div>
-                    {habit.notes && (
-                       <span className="text-[10px] text-stone-400 dark:text-stone-500 truncate mt-0.5">{habit.notes}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => onEdit(habit)}
-                      className="p-1 text-stone-300 hover:text-emerald-500 dark:text-stone-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
-                      title="Edit Habit"
-                    >
-                      <Edit2 size={14} className="pointer-events-none" />
-                    </button>
-                    <button 
-                      onClick={() => onDelete(habit.id)}
-                      className="p-1 text-stone-300 hover:text-red-500 dark:text-stone-600 dark:hover:text-red-400 transition-colors cursor-pointer"
-                      title="Delete Habit"
-                    >
-                      <Trash2 size={14} className="pointer-events-none" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Goal Column */}
-                <div className="flex items-center justify-center border-stone-100 dark:border-stone-800 text-xs font-medium text-stone-500 dark:text-stone-400">
-                  {goal}
-                </div>
-                
-                {days.map((day) => {
+          <AnimatePresence initial={false}>
+            {habits.map((habit, index) => {
+              // Calculate row progress
+              const completedInPeriod = days.filter(day => {
                   const dateStr = format(day, 'yyyy-MM-dd');
-                  const isCompleted = habit.entries.some(e => e.date === dateStr && e.completed);
-                  
-                  return (
-                    <div 
-                      key={dateStr} 
-                      className={cn(
-                        "border-l border-stone-100 dark:border-stone-800 flex items-center justify-center relative",
-                        isToday(day) && "bg-emerald-50/30 dark:bg-emerald-900/10"
+                  return habit.entries.some(e => e.date === dateStr && e.completed);
+              }).length;
+              const progress = Math.round((completedInPeriod / daysCount) * 100);
+              const goal = getHabitGoal(habit);
+
+              return (
+                <motion.div 
+                  key={habit.id} 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="grid group hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors" 
+                  style={{ gridTemplateColumns: `var(--habit-col-width) var(--goal-col-width) repeat(${daysCount}, minmax(44px, 1fr))` }}
+                >
+                  <div className="sticky left-0 z-20 bg-white dark:bg-stone-900 group-hover:bg-stone-50 dark:group-hover:bg-stone-900 transition-colors p-4 flex items-center justify-between pr-6 border-r border-stone-100 dark:border-stone-800 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
+                    <div className="flex flex-col overflow-hidden">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-stone-700 dark:text-stone-200 truncate" title={habit.title}>{habit.title}</span>
+                      </div>
+                      {habit.notes && (
+                         <span className="text-[10px] text-stone-400 dark:text-stone-500 truncate mt-0.5">{habit.notes}</span>
                       )}
-                    >
-                      <motion.button
-                        whileTap={{ scale: 0.8 }}
-                        onClick={() => onToggle(habit.id, dateStr)}
-                        className={cn(
-                          "w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer",
-                          isCompleted 
-                            ? "text-white shadow-sm border-transparent" 
-                            : "bg-transparent border-stone-200 dark:border-stone-700 hover:border-emerald-300 dark:hover:border-emerald-500 text-transparent hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                        )}
-                        style={{
-                          backgroundColor: isCompleted ? habit.color : undefined,
-                          borderColor: isCompleted ? habit.color : undefined
-                        }}
-                      >
-                        <Check size={14} strokeWidth={3} className="pointer-events-none" />
-                      </motion.button>
                     </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => onEdit(habit)}
+                        className="p-1 text-stone-300 hover:text-emerald-500 dark:text-stone-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                        title="Edit Habit"
+                      >
+                        <Edit2 size={14} className="pointer-events-none" />
+                      </button>
+                      <button 
+                        onClick={() => onDelete(habit.id)}
+                        className="p-1 text-stone-300 hover:text-red-500 dark:text-stone-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                        title="Delete Habit"
+                      >
+                        <Trash2 size={14} className="pointer-events-none" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Goal Column */}
+                  <div className="flex items-center justify-center border-stone-100 dark:border-stone-800 text-xs font-medium text-stone-500 dark:text-stone-400">
+                    {goal}
+                  </div>
+                  
+                  {days.map((day) => {
+                    const dateStr = format(day, 'yyyy-MM-dd');
+                    const isCompleted = habit.entries.some(e => e.date === dateStr && e.completed);
+                    
+                    return (
+                      <div 
+                        key={dateStr} 
+                        className={cn(
+                          "border-l border-stone-100 dark:border-stone-800 flex items-center justify-center relative",
+                          isToday(day) && "bg-emerald-50/30 dark:bg-emerald-900/10"
+                        )}
+                      >
+                        <motion.button
+                          whileTap={{ scale: 0.8 }}
+                          onClick={() => onToggle(habit.id, dateStr)}
+                          className={cn(
+                            "w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer",
+                            isCompleted 
+                              ? "text-white shadow-sm border-transparent" 
+                              : "bg-transparent border-stone-200 dark:border-stone-700 hover:border-emerald-300 dark:hover:border-emerald-500 text-transparent hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                          )}
+                          style={{
+                            backgroundColor: isCompleted ? habit.color : undefined,
+                            borderColor: isCompleted ? habit.color : undefined
+                          }}
+                        >
+                          <Check size={14} strokeWidth={3} className="pointer-events-none" />
+                        </motion.button>
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
 
           {habits.length === 0 && (
             <div className="p-8 text-center text-stone-400 dark:text-stone-500 text-sm">

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { LayoutDashboard, Moon, Sun, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Moon, Sun, Menu, X, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { Logo } from './Logo';
 
 const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
+  const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
@@ -54,6 +56,18 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
       </nav>
 
       <div className="p-4 border-t border-stone-100 dark:border-stone-800">
+        {user && (
+          <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-stone-50 dark:bg-stone-800/50 rounded-xl border border-stone-100 dark:border-stone-800">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate text-stone-900 dark:text-stone-100">{user.name}</p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate uppercase tracking-wider font-semibold">Active Profile</p>
+            </div>
+          </div>
+        )}
+        
         <div className="flex gap-2 px-4">
             <button
             onClick={() => {

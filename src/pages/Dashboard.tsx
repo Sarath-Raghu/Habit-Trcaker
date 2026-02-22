@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import HabitGrid from '../components/HabitGrid';
 import Stats from '../components/Stats';
 import { Plus, X, Download } from 'lucide-react';
 import { format, addMonths, subMonths, eachDayOfInterval, startOfMonth, endOfMonth } from 'date-fns';
+import { motion, AnimatePresence } from 'motion/react';
 
 const COLORS = [
   '#10B981', // Emerald
@@ -17,10 +19,13 @@ const COLORS = [
 ];
 
 export default function Dashboard() {
+  const { user, updateName } = useAuth();
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [newName, setNewName] = useState('');
   
   // Form State
   const [editingHabit, setEditingHabit] = useState<any>(null);
@@ -46,7 +51,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchHabits();
-  }, []);
+    if (!user) {
+      setIsNameModalOpen(true);
+    }
+  }, [user]);
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newName.trim()) {
+      updateName(newName.trim());
+      setIsNameModalOpen(false);
+    }
+  };
 
   const handleToggle = async (habitId: number, date: string) => {
     // Optimistic update
@@ -192,6 +208,54 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="flex flex-col gap-8">
+        {/* Name Prompt Modal */}
+        <AnimatePresence>
+          {isNameModalOpen && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => {}} // Prevent backdrop click if needed
+                className="absolute inset-0 bg-black/40 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-white dark:bg-stone-900 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-stone-100 dark:border-stone-800"
+              >
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Plus size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-stone-800 dark:text-stone-100">Welcome!</h3>
+                  <p className="text-stone-500 dark:text-stone-400 mt-2">What should we call you?</p>
+                </div>
+                <form onSubmit={handleNameSubmit}>
+                  <div className="mb-6">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      placeholder="Enter your name"
+                      className="w-full px-4 py-3 border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-lg text-center"
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-lg font-bold shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Start Tracking
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Header Section */}
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 md:gap-6">
           <div>
@@ -282,89 +346,103 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-stone-900 rounded-xl shadow-xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200 border border-stone-100 dark:border-stone-800">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100">
-                {editingHabit ? 'Edit Habit' : 'Create New Habit'}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleSaveHabit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Habit Name</label>
-                <input
-                  type="text"
-                  value={habitTitle}
-                  onChange={(e) => setHabitTitle(e.target.value)}
-                  placeholder="e.g., Drink Water, Read 30 mins..."
-                  className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  autoFocus
-                />
+      {/* Habit Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative bg-white dark:bg-stone-900 rounded-xl shadow-xl w-full max-w-md p-6 border border-stone-100 dark:border-stone-800"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100">
+                  {editingHabit ? 'Edit Habit' : 'Create New Habit'}
+                </h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer">
+                  <X size={20} />
+                </button>
               </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Frequency</label>
-                <select
-                  value={habitFrequency}
-                  onChange={(e) => setHabitFrequency(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="weekdays">Weekdays</option>
-                  <option value="weekends">Weekends</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Notes (Optional)</label>
-                <textarea
-                  value={habitNotes}
-                  onChange={(e) => setHabitNotes(e.target.value)}
-                  placeholder="Add a description or motivation..."
-                  className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none h-20"
-                />
-              </div>
-              
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Color</label>
-                <div className="flex flex-wrap gap-3">
-                  {COLORS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setHabitColor(color)}
-                      className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${habitColor === color ? 'ring-2 ring-offset-2 ring-stone-400 dark:ring-offset-stone-900' : ''}`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
+              <form onSubmit={handleSaveHabit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Habit Name</label>
+                  <input
+                    type="text"
+                    value={habitTitle}
+                    onChange={(e) => setHabitTitle(e.target.value)}
+                    placeholder="e.g., Drink Water, Read 30 mins..."
+                    className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    autoFocus
+                  />
                 </div>
-              </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Frequency</label>
+                  <select
+                    value={habitFrequency}
+                    onChange={(e) => setHabitFrequency(e.target.value)}
+                    className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="weekdays">Weekdays</option>
+                    <option value="weekends">Weekends</option>
+                  </select>
+                </div>
 
-              <div className="flex justify-end gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium"
-                >
-                  {editingHabit ? 'Save Changes' : 'Create Habit'}
-                </button>
-              </div>
-            </form>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Notes (Optional)</label>
+                  <textarea
+                    value={habitNotes}
+                    onChange={(e) => setHabitNotes(e.target.value)}
+                    placeholder="Add a description or motivation..."
+                    className="w-full px-3 py-2 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none h-20"
+                  />
+                </div>
+                
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Color</label>
+                  <div className="flex flex-wrap gap-3">
+                    {COLORS.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setHabitColor(color)}
+                        className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${habitColor === color ? 'ring-2 ring-offset-2 ring-stone-400 dark:ring-offset-stone-900' : ''}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-sm font-medium cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium cursor-pointer"
+                  >
+                    {editingHabit ? 'Save Changes' : 'Create Habit'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }
