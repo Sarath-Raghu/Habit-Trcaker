@@ -69,6 +69,13 @@ export function initializeDatabase() {
     }
 
     console.log('Database initialized successfully');
+
+    // Ensure default user exists
+    const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as any;
+    if (userCount.count === 0) {
+      db.prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)').run('Default User', 'user@example.com', 'nopassword');
+      console.log('Default user created');
+    }
   } catch (error) {
     console.error('Database initialization failed:', error);
     throw error;

@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { initializeDatabase } from './server/db';
-import authRoutes from './server/routes/auth';
 import habitRoutes from './server/routes/habits';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,7 +43,6 @@ async function startServer() {
   });
 
   // API Routes
-  app.use('/api', authRoutes); // Mount at /api to support /api/register and /api/login
   app.use('/api/habits', habitRoutes);
 
   // 404 for API routes

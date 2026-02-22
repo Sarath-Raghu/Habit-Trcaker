@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { LogOut, LayoutDashboard, Moon, Sun, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Moon, Sun, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { Logo } from './Logo';
 
 const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
-  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
@@ -56,16 +54,6 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
       </nav>
 
       <div className="p-4 border-t border-stone-100 dark:border-stone-800">
-        <div className="flex items-center gap-3 px-4 py-3 mb-2">
-          <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
-            {user?.name.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-stone-900 dark:text-stone-100">{user?.name}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{user?.email}</p>
-          </div>
-        </div>
-        
         <div className="flex gap-2 px-4">
             <button
             onClick={() => {
@@ -76,16 +64,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
             title="Toggle Theme"
           >
             {theme === 'light' ? <Moon size={16} className="pointer-events-none" /> : <Sun size={16} className="pointer-events-none" />}
-          </button>
-          <button
-            onClick={() => {
-              console.log('Logout clicked');
-              logout();
-            }}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-md transition-colors cursor-pointer"
-            title="Sign Out"
-          >
-            <LogOut size={16} className="pointer-events-none" />
+            <span className="ml-2">Theme</span>
           </button>
         </div>
       </div>
@@ -95,7 +74,6 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
-  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (

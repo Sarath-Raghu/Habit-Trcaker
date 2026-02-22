@@ -11,17 +11,7 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    req.user = user;
-    next();
-  });
+  // Bypass authentication for "no login" implementation
+  req.user = { id: 1, email: 'user@example.com' };
+  next();
 };

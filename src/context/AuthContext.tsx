@@ -16,32 +16,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/me');
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Auth check failed', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, []);
+  const [user, setUser] = useState<User | null>({ id: 1, name: 'Default User', email: 'user@example.com' });
+  const [loading, setLoading] = useState(false);
 
   const login = (userData: User) => {
     setUser(userData);
   };
 
   const logout = async () => {
-    await fetch('/api/logout', { method: 'POST' });
     setUser(null);
   };
 

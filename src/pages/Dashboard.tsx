@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import HabitGrid from '../components/HabitGrid';
 import Stats from '../components/Stats';
@@ -18,7 +17,6 @@ const COLORS = [
 ];
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
