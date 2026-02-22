@@ -21,6 +21,12 @@ async function startServer() {
   app.use(express.json());
   app.use(cookieParser());
 
+  // Request Logger
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+
   // Health Check
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', database: 'connected' });
@@ -29,6 +35,21 @@ async function startServer() {
   // API Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/habits', habitRoutes);
+
+  // 404 for API routes
+  app.use('/api/*', (req, res) => {
+    console.warn(`API Route not found: ${req.method} ${req.url}`);
+    res.status(404).json({ error: 'API route not found' });
+  });
+
+  // Global Error Handler
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: process.env.NODE_ENV === 'production' ? undefined : err.message 
+    });
+  });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {

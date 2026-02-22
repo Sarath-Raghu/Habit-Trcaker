@@ -37,7 +37,12 @@ export default function Register() {
         data = await res.json();
       } else {
         const text = await res.text();
-        throw new Error(text || 'Server returned a non-JSON response');
+        console.error('Non-JSON response received:', text);
+        // If it looks like HTML, it's likely a 404 or 500 page
+        if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+          throw new Error(`Server error (${res.status}): The server returned an HTML page instead of JSON. This usually means the API route is missing or the server is misconfigured.`);
+        }
+        throw new Error(text || `Server returned a non-JSON response (Status: ${res.status})`);
       }
       
       if (res.ok) {
